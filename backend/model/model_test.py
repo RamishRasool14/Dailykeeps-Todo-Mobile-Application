@@ -1,64 +1,138 @@
 import pytest
-from model import App
+from model import App, Task
 import uuid
+import datetime
+import random
+import string
+import copy
+from collections import defaultdict
 
-def testAddTask(): # Creates random 10 tasks and tests if they are correctly added to the system
-    a1 = App()
-    tasks1 = [a1.createRandomTask() for x in range(10)]
 
-    for task in tasks1:
-        a1.addTask(task)
+def create_random_task(owner_id: int):
+    length = 10
+    return Task(
+        uuid.uuid4(),
+        datetime.datetime.now(),
+        owner_id,
+        "".join(random.choices(string.ascii_lowercase + string.digits, k=length)),
+    )
 
-    for ind, added_task in enumerate(a1.tasks):
-        assert added_task == tasks1[ind] , "Test Failed"
 
-    del a1
+def test_add_task():  # Creates random 10 tasks and tests if they are correctly added to the system
+    app = App()
+    tasks = []
+    test_dict = defaultdict(list)
+    for x in range(10):
+        if x < 5:
+            task = create_random_task(0)
+        else:
+            task = create_random_task(1)
+        app.add_task(task)
+        test_dict[task.owner_id].append(copy.deepcopy(task))
+    assert test_dict == app.dictionary
 
-def testChangeOrder(): # Creates random 10 tasks and change order of the first and last task
-    a2 = App()
-    tasks2 = [a2.createRandomTask() for x in range(10)]
-    for task in tasks2:
-        a2.addTask(task)
 
-    a2.changeOrder(tasks2[-1],tasks2[0])
+def test_change_order():  # Creates random 10 tasks and change order of the first and last task
+    app = App()
+    tasks = []
+    test_dict = defaultdict(list)
+    for x in range(10):
+        if x < 5:
+            task = create_random_task(0)
+        else:
+            task = create_random_task(1)
+        app.add_task(task)
+        tasks.append(task)
+        test_dict[task.owner_id].append(copy.deepcopy(task))
 
-    assert a2.tasks[0] == tasks2[-1] , "Test Failed"
-    assert a2.tasks[-1] == tasks2[0] , "Test Failed"
-    
-    for ind in range(1,9):
-        assert a2.tasks[ind] == tasks2[ind] , "Test Failed"
+    ind1 = 0
+    ind2 = 4
 
-    del a2
+    test_dict[0].remove(tasks[4])
+    test_dict[0].insert(ind1, tasks[4])
 
-def testDeleteTask():
-    a3 = App()
-    tasks3 = [a3.createRandomTask() for x in range(5)]
-    for task in tasks3:
-        a3.addTask(task)
+    app.change_order(tasks[ind2], ind1)
+    assert test_dict == app.dictionary
 
-    a3.deleteTask(tasks3[2])
-    assert a3.tasks[0] == tasks3[0] , "Test Failed"
-    assert a3.tasks[1] == tasks3[1] , "Test Failed"
-    assert a3.tasks[2] == tasks3[3] , "Test Failed"
-    assert a3.tasks[3] == tasks3[4] , "Test Failed"
 
-def testEditTask():
-    a4 = App()
-    tasks4 = [a4.createRandomTask() for x in range(5)]
-    for task in tasks4:
-        a4.addTask(task)
+def test_delete_task():
+    app = App()
+    tasks = []
+    test_dict = defaultdict(list)
+    for x in range(10):
+        if x < 5:
+            task = create_random_task(0)
+        else:
+            task = create_random_task(1)
+        app.add_task(task)
+        tasks.append(task)
+        test_dict[task.owner_id].append(copy.deepcopy(task))
 
-    tasks4[-1].owner_id = 1234
-    a4.editTask(-1,tasks4[-1])
-    assert a4.tasks[0] == tasks4[0] , "Test Failed"
+    app.delete_task(tasks[3])
+    test_dict[0].remove(tasks[3])
 
-def testMarkComplete():
-    a5 = App()
-    tasks5 = [a5.createRandomTask() for x in range(5)]
-    for task in tasks5:
-        a5.addTask(task)
+    assert test_dict == app.dictionary
 
-    a5.markComplete(-1)
-    tasks5[-1].done = True
-    assert a5.tasks[-1] == tasks5[-1] , "Test Failed"
-        
+
+def test_edit_task():
+    app = App()
+    tasks = []
+    test_dict = defaultdict(list)
+    for x in range(10):
+        if x < 5:
+            task = create_random_task(0)
+        else:
+            task = create_random_task(1)
+        app.add_task(task)
+        tasks.append(task)
+        test_dict[task.owner_id].append(copy.deepcopy(task))
+
+    tasks[3].description = "Please edit the task Bro"
+    app.edit_task(tasks[3])
+    test_dict[0][3].description = "Please edit the task Bro"
+
+    assert test_dict == app.dictionary
+
+
+def test_mark_complete():
+app = App()
+tasks = []
+test_dict = defaultdict(list)
+for x in range(10):
+    if x < 5:
+        task = create_random_task(0)
+    else:
+        task = create_random_task(1)
+    app.add_task(task)
+    tasks.append(task)
+    test_dict[task.owner_id].append(copy.deepcopy(task))
+
+    tasks[3].done = True
+    app.mark(tasks[3])
+    test_dict[0][3].done = True
+    assert test_dict == app.dictionary
+
+    app.mark(tasks[3], False)
+    test_dict[0][3].done = False
+    assert test_dict == app.dictionary
+
+# app = App()
+# tasks = []
+# test_dict = defaultdict(list)
+# for x in range(10):
+#     if x < 5:
+#         task = create_random_task(0)
+#     else:
+#         task = create_random_task(1)
+#     app.add_task(task)
+#     tasks.append(task)
+#     test_dict[task.owner_id].append(copy.deepcopy(task))
+
+# ind1 = 0
+# ind2 = 4
+
+# test_dict[0].remove(tasks[4])
+# test_dict[0].insert(ind1, tasks[4])
+
+# app.change_order(tasks[ind2], ind1)
+# app.print_tasks()
