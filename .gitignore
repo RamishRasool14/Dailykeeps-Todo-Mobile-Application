@@ -1,2 +1,4 @@
 backend/model/__pycache__/
 backend/model/.pytest_cache/
+.DS_Store
+backend/model/.DS_Store

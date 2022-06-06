@@ -1,5 +1,5 @@
 import pytest
-from model import App, Task
+import model
 import uuid
 import datetime
 import random
@@ -10,7 +10,7 @@ from collections import defaultdict
 
 def create_random_task(owner_id: int):
     length = 10
-    return Task(
+    return model.Task(
         uuid.uuid4(),
         datetime.datetime.now(),
         owner_id,
@@ -18,8 +18,31 @@ def create_random_task(owner_id: int):
     )
 
 
+def create_random_user():
+    length = 6
+    return model.User(
+        uuid.uuid4(),
+        "".join(random.choices(string.ascii_lowercase + string.digits, k=length)),
+        "".join(random.choices(string.ascii_lowercase + string.digits, k=length)),
+        model.generate_hexdigest(
+            "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
+        ),
+    )
+
+
+def test_add_user():
+    app = model.App()
+    users = [create_random_user() for x in range(10)]
+
+    for user in users:
+        app.register_user(user.id, user.first_name, user.last_name, user.password_hash)
+
+    for user in users:
+        assert app.check_user(user.id)
+
+
 def test_add_task():  # Creates random 10 tasks and tests if they are correctly added to the system
-    app = App()
+    app = model.App()
     tasks = []
     test_dict = defaultdict(list)
     for x in range(10):
@@ -27,13 +50,17 @@ def test_add_task():  # Creates random 10 tasks and tests if they are correctly 
             task = create_random_task(0)
         else:
             task = create_random_task(1)
-        app.add_task(task)
-        test_dict[task.owner_id].append(copy.deepcopy(task))
-    assert test_dict == app.dictionary
+    user = create_random_user()
+    user.id = task.owner_id
+    app.register_user(user.id, user.first_name, user.last_name, user.password_hash)
+    app.add_task(task)
+    test_dict[task.owner_id].append(copy.deepcopy(task))
+
+    assert test_dict == app.user_ids_to_todolist
 
 
 def test_change_order():  # Creates random 10 tasks and change order of the first and last task
-    app = App()
+    app = model.App()
     tasks = []
     test_dict = defaultdict(list)
     for x in range(10):
@@ -41,6 +68,9 @@ def test_change_order():  # Creates random 10 tasks and change order of the firs
             task = create_random_task(0)
         else:
             task = create_random_task(1)
+        user = create_random_user()
+        user.id = task.owner_id
+        app.register_user(user.id, user.first_name, user.last_name, user.password_hash)
         app.add_task(task)
         tasks.append(task)
         test_dict[task.owner_id].append(copy.deepcopy(task))
@@ -52,11 +82,11 @@ def test_change_order():  # Creates random 10 tasks and change order of the firs
     test_dict[0].insert(ind1, tasks[4])
 
     app.change_order(tasks[ind2], ind1)
-    assert test_dict == app.dictionary
+    assert test_dict == app.user_ids_to_todolist
 
 
 def test_delete_task():
-    app = App()
+    app = model.App()
     tasks = []
     test_dict = defaultdict(list)
     for x in range(10):
@@ -64,6 +94,9 @@ def test_delete_task():
             task = create_random_task(0)
         else:
             task = create_random_task(1)
+        user = create_random_user()
+        user.id = task.owner_id
+        app.register_user(user.id, user.first_name, user.last_name, user.password_hash)
         app.add_task(task)
         tasks.append(task)
         test_dict[task.owner_id].append(copy.deepcopy(task))
@@ -71,11 +104,11 @@ def test_delete_task():
     app.delete_task(tasks[3])
     test_dict[0].remove(tasks[3])
 
-    assert test_dict == app.dictionary
+    assert test_dict == app.user_ids_to_todolist
 
 
 def test_edit_task():
-    app = App()
+    app = model.App()
     tasks = []
     test_dict = defaultdict(list)
     for x in range(10):
@@ -83,6 +116,9 @@ def test_edit_task():
             task = create_random_task(0)
         else:
             task = create_random_task(1)
+        user = create_random_user()
+        user.id = task.owner_id
+        app.register_user(user.id, user.first_name, user.last_name, user.password_hash)
         app.add_task(task)
         tasks.append(task)
         test_dict[task.owner_id].append(copy.deepcopy(task))
@@ -91,48 +127,30 @@ def test_edit_task():
     app.edit_task(tasks[3])
     test_dict[0][3].description = "Please edit the task Bro"
 
-    assert test_dict == app.dictionary
+    assert test_dict == app.user_ids_to_todolist
 
 
 def test_mark_complete():
-app = App()
-tasks = []
-test_dict = defaultdict(list)
-for x in range(10):
-    if x < 5:
-        task = create_random_task(0)
-    else:
-        task = create_random_task(1)
-    app.add_task(task)
-    tasks.append(task)
-    test_dict[task.owner_id].append(copy.deepcopy(task))
+    app = model.App()
+    tasks = []
+    test_dict = defaultdict(list)
+    for x in range(10):
+        if x < 5:
+            task = create_random_task(0)
+        else:
+            task = create_random_task(1)
+        user = create_random_user()
+        user.id = task.owner_id
+        app.register_user(user.id, user.first_name, user.last_name, user.password_hash)
+        app.add_task(task)
+        tasks.append(task)
+        test_dict[task.owner_id].append(copy.deepcopy(task))
 
     tasks[3].done = True
     app.mark(tasks[3])
     test_dict[0][3].done = True
-    assert test_dict == app.dictionary
+    assert test_dict == app.user_ids_to_todolist
 
     app.mark(tasks[3], False)
     test_dict[0][3].done = False
-    assert test_dict == app.dictionary
-
-# app = App()
-# tasks = []
-# test_dict = defaultdict(list)
-# for x in range(10):
-#     if x < 5:
-#         task = create_random_task(0)
-#     else:
-#         task = create_random_task(1)
-#     app.add_task(task)
-#     tasks.append(task)
-#     test_dict[task.owner_id].append(copy.deepcopy(task))
-
-# ind1 = 0
-# ind2 = 4
-
-# test_dict[0].remove(tasks[4])
-# test_dict[0].insert(ind1, tasks[4])
-
-# app.change_order(tasks[ind2], ind1)
-# app.print_tasks()
+    assert test_dict == app.user_ids_to_todolist

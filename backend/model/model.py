@@ -43,50 +43,71 @@ class User:
 class App:
     """API Interface of application with which backend communicates with the database and sends query results to frontend after requests"""
 
-    dictionary = defaultdict(
+    # Data Stuctures for holding user and task data
+    user_ids_to_todolist = defaultdict(
         list
     )  # A key-value pair data structure in which keys are user-ids and values are to-do lists corresponding to those user-ids
+    users = []
+
+    # Methods
+
+    def register_user(
+        self, id: uuid, first_name: str, last_name: str, password_hash: str
+    ):
+        self.users.append(User(id, first_name, last_name, password_hash))
+
+    def check_user(self, authenticate_user_id: uuid):
+        for user in self.users:
+            if user.id == authenticate_user_id:
+                return True
+        return False
 
     def add_task(self, task: Task) -> None:
-        self.dictionary[task.owner_id].append(copy.deepcopy(task))
+        if self.check_user(task.owner_id):
+            self.user_ids_to_todolist[task.owner_id].append(copy.deepcopy(task))
 
     def print_tasks(self) -> None:  # Remove Eventually
-        print("\nPrinting Tasks for Total {} Users \n".format(len(self.dictionary)))
-        for k, value in self.dictionary.items():
+        print(
+            "\nPrinting Tasks for Total {} Users \n".format(
+                len(self.user_ids_to_todolist)
+            )
+        )
+        for k, value in self.user_ids_to_todolist.items():
             print(k)
-            # value = sorted(
-            #     value, key=lambda x: x.creation_time
-            # )  # Sorts date such that the most recently created task is printed first
             for task in value:
                 print(task)
             print("")
 
     def change_order(self, new_task: Task, indx: int) -> None:
-        tasks = self.dictionary[new_task.owner_id]
-        tasks.remove(new_task)
-        tasks.insert(indx, new_task)
-        self.dictionary[new_task.owner_id] = tasks
+        if self.check_user(new_task.owner_id):
+            tasks = self.user_ids_to_todolist[new_task.owner_id]
+            tasks.remove(new_task)
+            tasks.insert(indx, new_task)
+            self.user_ids_to_todolist[new_task.owner_id] = tasks
 
     def delete_task(self, delete_task: Task) -> None:
-        tasks = self.dictionary[delete_task.owner_id]
-        tasks.remove(delete_task)
-        self.dictionary[delete_task.owner_id] = tasks
+        if self.check_user(delete_task.owner_id):
+            tasks = self.user_ids_to_todolist[delete_task.owner_id]
+            tasks.remove(delete_task)
+            self.user_ids_to_todolist[delete_task.owner_id] = tasks
 
-    def edit_task(self, editedTask: Task) -> None:
-        tasks = self.dictionary[editedTask.owner_id]
-        for indx, task in enumerate(tasks):
-            if editedTask.id == task.id:
-                break
-        tasks.remove(tasks[indx])
-        tasks.insert(indx, editedTask)
-        self.dictionary[editedTask.owner_id] = tasks
+    def edit_task(self, edited_task: Task) -> None:
+        if self.check_user(edited_task.owner_id):
+            tasks = self.user_ids_to_todolist[edited_task.owner_id]
+            for indx, task in enumerate(tasks):
+                if edited_task.id == task.id:
+                    break
+            tasks.remove(tasks[indx])
+            tasks.insert(indx, edited_task)
+            self.user_ids_to_todolist[edited_task.owner_id] = tasks
 
     def mark(self, change_task: Task, mark: bool = True) -> None:
-        tasks = self.dictionary[change_task.owner_id]
-        for indx, task in enumerate(tasks):
-            if change_task.id == task.id:
-                break
-        if mark:
-            tasks[indx].done = True
-        else:
-            tasks[indx].done = False
+        if self.check_user(change_task.owner_id):
+            tasks = self.user_ids_to_todolist[change_task.owner_id]
+            for indx, task in enumerate(tasks):
+                if change_task.id == task.id:
+                    break
+            if mark:
+                tasks[indx].done = True
+            else:
+                tasks[indx].done = False
