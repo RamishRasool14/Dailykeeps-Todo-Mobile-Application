@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-import enum
+from dataclasses import dataclass, field
 import hashlib
 from re import A
 import uuid
@@ -8,6 +7,7 @@ import random
 import string
 import copy
 from collections import defaultdict
+from itertools import groupby
 
 # dataclass documentation https://docs.python.org/3/library/dataclasses.html
 
@@ -40,13 +40,16 @@ class User:
         return generate_hexdigest(password) == self.password_hash
 
 
+@dataclass
 class App:
     """API Interface of application with which backend communicates with the database and sends query results to frontend after requests"""
 
     # Data Stuctures for holding user and task data
-    user_ids_to_todolist = defaultdict(
-        list
-    )  # A key-value pair data structure in which keys are user-ids and values are to-do lists corresponding to those user-ids
+    user_ids_to_todolist: defaultdict(list) = field(
+        default_factory=lambda: defaultdict(list)
+    )
+
+    # A key-value pair data structure in which keys are user-ids and values are to-do lists corresponding to those user-ids
     users = []
 
     # Methods
@@ -62,8 +65,19 @@ class App:
                 return True
         return False
 
+    def get_tasks_by_day(self, owner_id: uuid):
+        tasks = self.user_ids_to_todolist[owner_id]
+        ordered_by_day = [
+            list(v) for i, v in groupby(tasks, lambda x: x.creation_time.day)
+        ]
+        print("\nPrinting Tasks in order for User {}\n".format(owner_id))
+        for day in ordered_by_day:
+            print(day)
+            print("")
+
     def add_task(self, task: Task) -> None:
         if self.check_user(task.owner_id):
+            print("PRESENT")
             self.user_ids_to_todolist[task.owner_id].append(copy.deepcopy(task))
 
     def print_tasks(self) -> None:  # Remove Eventually
@@ -79,35 +93,21 @@ class App:
             print("")
 
     def change_order(self, new_task: Task, indx: int) -> None:
-        if self.check_user(new_task.owner_id):
-            tasks = self.user_ids_to_todolist[new_task.owner_id]
-            tasks.remove(new_task)
-            tasks.insert(indx, new_task)
-            self.user_ids_to_todolist[new_task.owner_id] = tasks
+        tasks = self.user_ids_to_todolist[new_task.owner_id]
+        task = tasks[tasks.index(new_task)]
+        tasks.remove(task)
+        tasks.insert(indx, task)
 
     def delete_task(self, delete_task: Task) -> None:
-        if self.check_user(delete_task.owner_id):
-            tasks = self.user_ids_to_todolist[delete_task.owner_id]
-            tasks.remove(delete_task)
-            self.user_ids_to_todolist[delete_task.owner_id] = tasks
+        tasks = self.user_ids_to_todolist[delete_task.owner_id]
+        tasks.remove(delete_task)
 
     def edit_task(self, edited_task: Task) -> None:
-        if self.check_user(edited_task.owner_id):
-            tasks = self.user_ids_to_todolist[edited_task.owner_id]
-            for indx, task in enumerate(tasks):
-                if edited_task.id == task.id:
-                    break
-            tasks.remove(tasks[indx])
-            tasks.insert(indx, edited_task)
-            self.user_ids_to_todolist[edited_task.owner_id] = tasks
+        tasks = self.user_ids_to_todolist[edited_task.owner_id]
+        indx = list(map(lambda x: x.id, tasks)).index(edited_task.id)
+        tasks[indx] = edited_task
 
     def mark(self, change_task: Task, mark: bool = True) -> None:
-        if self.check_user(change_task.owner_id):
-            tasks = self.user_ids_to_todolist[change_task.owner_id]
-            for indx, task in enumerate(tasks):
-                if change_task.id == task.id:
-                    break
-            if mark:
-                tasks[indx].done = True
-            else:
-                tasks[indx].done = False
+        tasks = self.user_ids_to_todolist[change_task.owner_id]
+        indx = list(map(lambda x: x.id, tasks)).index(change_task.id)
+        tasks[indx].done = mark
