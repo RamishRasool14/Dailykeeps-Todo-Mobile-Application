@@ -77,7 +77,6 @@ class App:
 
     def add_task(self, task: Task) -> None:
         if self.check_user(task.owner_id):
-            print("PRESENT")
             self.user_ids_to_todolist[task.owner_id].append(copy.deepcopy(task))
 
     def print_tasks(self) -> None:  # Remove Eventually
