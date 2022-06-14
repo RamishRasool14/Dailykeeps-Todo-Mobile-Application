@@ -42,11 +42,6 @@ def test_create_task_with_duedate():
     assert task.due_time == datetime.datetime(2025, 10, 2)
 
 
-def test_no_ownerid():
-    with pytest.raises(model.OwneridNotFoundException):
-        task = model.Task()
-
-
 def test_incorrect_due_time():
     with pytest.raises(model.InvalidDueTime):
         task = model.Task(owner_id=1, due_time=datetime.datetime(1988, 10, 2))
