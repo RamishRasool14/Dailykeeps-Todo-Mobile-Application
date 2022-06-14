@@ -43,45 +43,30 @@ def test_create_task_with_duedate():
 
 
 def test_no_ownerid():
-    with pytest.raises(Exception):
+    with pytest.raises(model.OwneridNotFoundException):
         task = model.Task()
 
 
 def test_incorrect_due_time():
-    with pytest.raises(Exception):
-        task = model.Task(due_time=datetime.datetime(1988, 10, 2))
+    with pytest.raises(model.InvalidDueTime):
+        task = model.Task(owner_id=1, due_time=datetime.datetime(1988, 10, 2))
 
 
 def test_create_user():
     user_id = uuid.uuid4()
-    first_name = "random first name"
-    last_name = "random last name"
-    password_hash = model.generate_hexdigest("random password")
+    test_first_name = "random first name"
+    test_last_name = "random last name"
+    test_password_hash = model.generate_hexdigest("random password")
     user = model.User(
-        id=user_id,
-        first_name=first_name,
-        last_name=last_name,
+        first_name=test_first_name,
+        last_name=test_last_name,
         password_hash="random password",
+        id=user_id,
     )
     assert user.id == user_id
-    assert user.first_name == user.first_name
-    assert user.last_name == user.last_name
-    assert user.password_hash == password_hash
-
-
-def test_no_first_name():
-    with pytest.raises(Exception):
-        model.User()
-
-
-def test_no_last_name():
-    with pytest.raises(Exception):
-        model.User(first_name="random")
-
-
-def test_no_password():
-    with pytest.raises(Exception):
-        model.User(first_name="random first name", last_name="random last name")
+    assert user.first_name == test_first_name
+    assert user.last_name == test_last_name
+    assert user.password_hash == test_password_hash
 
 
 def test_autheticate_password():
