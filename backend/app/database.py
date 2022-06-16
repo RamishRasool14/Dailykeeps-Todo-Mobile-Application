@@ -10,6 +10,8 @@ SCHEMAPATH = "../schema.sql"
 class Database:
     def __init__(self, existing_db=True) -> None:
         self._conn = None
+        self.dbname = DBNAME
+
         if existing_db:
             self.connect()
         else:
@@ -23,7 +25,7 @@ class Database:
 
     def connect(self):
         self._conn = psycopg2.connect(
-            "dbname={} user={} password={}".format(DBNAME, USER, DBPASS)
+            "dbname={} user={} password={}".format(self.dbname, USER, DBPASS)
         )
         self._cur = self._conn.cursor()
 
@@ -41,13 +43,13 @@ class Database:
         self._conn.rollback()
 
     def _drop_db(self):
-        os.system("dropdb {}".format(DBNAME))
+        os.system("dropdb {}".format(self.dbname))
 
     def _create_db(self):
-        os.system("createdb {}".format(DBNAME))
+        os.system("createdb {}".format(self.dbname))
 
     def _create_tables_from_schema(self):
-        os.system("psql {} -af {}".format(DBNAME, SCHEMAPATH))
+        os.system("psql {} -af {}".format(self.dbname, SCHEMAPATH))
 
     def _drop_and_create_new_db(self):
         self._drop_db()
@@ -59,8 +61,4 @@ class Database:
         self._conn.close()
 
 
-# Database(False)
-
-
-class DuplicateError(psycopg2.errors.UniqueViolation):
-    pass
+# Database(existing_db=False)  # Creates a new database

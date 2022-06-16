@@ -31,25 +31,32 @@ def test_create_task():
 
 
 def test_create_task_without_duedate():
-    task = model.Task(owner_id=uuid.uuid4())
+    task = model.Task(
+        owner_id=uuid.uuid4(), id=uuid.uuid4(), creation_time=datetime.datetime.now()
+    )
     assert (
         task.creation_time.date() + datetime.timedelta(days=1) == task.due_time.date()
     )
 
 
 def test_create_task_with_duedate():
-    task = model.Task(owner_id=uuid.uuid4(), due_time=datetime.datetime(2025, 10, 2))
+    task = model.Task(
+        owner_id=uuid.uuid4(),
+        id=uuid.uuid4(),
+        creation_time=datetime.datetime.now(),
+        due_time=datetime.datetime(2025, 10, 2),
+    )
     assert task.due_time == datetime.datetime(2025, 10, 2)
-
-
-def test_no_ownerid():
-    with pytest.raises(model.OwneridNotFoundException):
-        task = model.Task()
 
 
 def test_incorrect_due_time():
     with pytest.raises(model.InvalidDueTime):
-        task = model.Task(owner_id=1, due_time=datetime.datetime(1988, 10, 2))
+        task = model.Task(
+            owner_id=1,
+            id=uuid.uuid4(),
+            creation_time=datetime.datetime.now(),
+            due_time=datetime.datetime(1988, 10, 2),
+        )
 
 
 def test_create_user():
@@ -71,6 +78,11 @@ def test_create_user():
 
 def test_autheticate_password():
     test_pass = "correct password"
-    user = model.User(first_name="ramish", last_name="rasool", password_hash=test_pass)
+    user = model.User(
+        id=uuid.uuid4(),
+        first_name="ramish",
+        last_name="rasool",
+        password_hash=test_pass,
+    )
     assert user.authenticate("correct password")
     assert not user.authenticate("incorrect password")

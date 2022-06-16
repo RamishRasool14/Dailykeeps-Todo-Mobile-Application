@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from database import Database, DuplicateError
+from database import Database
 from model import User, Task
 from typing import Optional
+import exception
 
 
 class ABClass(ABC):
@@ -13,7 +14,7 @@ class ABClass(ABC):
         pass
 
     @abstractmethod
-    def create(self, *args, **kwargs):
+    def add(self, *args, **kwargs):
         pass
 
     @abstractmethod
@@ -32,12 +33,18 @@ class UserRepository(ABClass):
     def get(self, id: Optional[str] = None, all=False):
         with Database() as db:
             cur = db.execute(f'select * from "{self.table}" where "id"=%s ', id)
-            if all:
-                cur = db.execute(f'select * from "{self.table}"')
+            user = cur.fetchone()
+            if user is None:
+                raise exception.UserNotFound()
+            return User(
+                id=user[0],
+                first_name=user[1],
+                last_name=user[2],
+                password_hash=user[3],
+                generate_hash=False,
+            )
 
-            return cur.fetchall()
-
-    def create(self, user: User):
+    def add(self, user: User):
         with Database() as db:
             db.execute(
                 'insert into "{}" (id, first_name, last_name, password) values (%s,%s,%s,%s)'.format(
@@ -53,7 +60,7 @@ class UserRepository(ABClass):
     def update(self, user: User):
         with Database() as db:
             db.execute(
-                'update "{}" SET first_name=%s, last_name=%s, password=%s where id=%s'.format(
+                'update "{}" set first_name=%s, last_name=%s, password=%s where id=%s'.format(
                     self.table
                 ),
                 user.first_name,
@@ -78,35 +85,44 @@ class TaskRepository(ABClass):
 
     def get(self, id: Optional[str] = None, all=False):
         with Database() as db:
-            cur = db.execute(f'select * from "{self.table}" where "id"=%s ', id)
-            if all:
-                cur = db.execute(f'select * from "{self.table}"')
+            cur = db.execute(f'select * from "{self.table}" where "owner_id"=%s ', id)
+            return [
+                Task(
+                    id=task[0],
+                    creation_time=task[1],
+                    due_time=task[2],
+                    owner_id=task[3],
+                    description=task[4],
+                    done=task[5],
+                )
+                for task in cur.fetchall()
+            ]
 
-            return cur.fetchall()
-
-    def create(self, user: User):
+    def add(self, task: Task):
         with Database() as db:
             db.execute(
-                'insert into "{}" (id, first_name, last_name, password) values (%s,%s,%s,%s)'.format(
+                'insert into "{}" (id, creation_time, due_time, owner_id, description, done) values (%s,%s,%s,%s,%s,%s)'.format(
                     self.table
                 ),
-                str(user.id),
-                user.first_name,
-                user.last_name,
-                user.password_hash,
+                task.id,
+                task.creation_time,
+                task.due_time,
+                task.owner_id,
+                task.description,
+                task.done,
             )
             db.commit()
 
-    def update(self, user: User):
+    def update(self, task: Task):
         with Database() as db:
             db.execute(
-                'update "{}" SET first_name=%s, last_name=%s, password=%s where id=%s'.format(
+                'update "{}" SET due_time=%s, description=%s, done=%s where id=%s'.format(
                     self.table
                 ),
-                user.first_name,
-                user.last_name,
-                user.password_hash,
-                user.id,
+                task.due_time,
+                task.description,
+                task.done,
+                task.id,
             )
             db.commit()
 

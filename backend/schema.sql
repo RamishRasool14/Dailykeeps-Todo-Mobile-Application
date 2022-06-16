@@ -10,7 +10,7 @@ CREATE TABLE "task"
 (
     id text primary key,
     creation_time timestamp without time zone NOT NULL default current_timestamp,
-    due_time text NOT NULL,
+    due_time timestamp without time zone NOT NULL,
     owner_id text NOT NULL,
     description text NOT NULL,
     done bool NOT NULL,
