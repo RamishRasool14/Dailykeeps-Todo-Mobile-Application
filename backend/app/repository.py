@@ -6,35 +6,29 @@ import exception
 
 
 class ABClass(ABC):
-    def __init__(self, table):
-        self.table = table
-
     @abstractmethod
-    def get(self, *args, **kwargs):
+    def get(self, id):
         pass
 
     @abstractmethod
-    def add(self, *args, **kwargs):
+    def add(self, model):
         pass
 
     @abstractmethod
-    def update(self, *args, **kwargs):
+    def update(self, model):
         pass
 
     @abstractmethod
-    def delete(self, *args, **kwargs):
+    def delete(self, id):
         pass
 
 
 class UserRepository(ABClass):
-    def __init__(self):
-        super().__init__("user")
-
     def get(self, id: Optional[str] = None, all=False):
         with Database() as db:
-            cur = db.execute(f'select * from "{self.table}" where "id"=%s ', id)
+            cur = db.execute(f'select * from "user" where "id"=%s ', id)
             user = cur.fetchone()
-            if user is None:
+            if not user:
                 raise exception.UserNotFound()
             return User(
                 id=user[0],
@@ -47,9 +41,7 @@ class UserRepository(ABClass):
     def add(self, user: User):
         with Database() as db:
             db.execute(
-                'insert into "{}" (id, first_name, last_name, password) values (%s,%s,%s,%s)'.format(
-                    self.table
-                ),
+                'insert into "user" (id, first_name, last_name, password) values (%s,%s,%s,%s)',
                 str(user.id),
                 user.first_name,
                 user.last_name,
@@ -60,9 +52,7 @@ class UserRepository(ABClass):
     def update(self, user: User):
         with Database() as db:
             db.execute(
-                'update "{}" set first_name=%s, last_name=%s, password=%s where id=%s'.format(
-                    self.table
-                ),
+                'update "user" set first_name=%s, last_name=%s, password=%s where id=%s',
                 user.first_name,
                 user.last_name,
                 user.password_hash,
@@ -73,37 +63,35 @@ class UserRepository(ABClass):
     def delete(self, id: str):
         with Database() as db:
             db.execute(
-                'delete from "{}" where id=%s'.format(self.table),
+                'delete from "user" where id=%s',
                 id,
             )
             db.commit()
 
 
 class TaskRepository(ABClass):
-    def __init__(self):
-        super().__init__("task")
-
     def get(self, id: Optional[str] = None, all=False):
         with Database() as db:
-            cur = db.execute(f'select * from "{self.table}" where "owner_id"=%s ', id)
-            return [
-                Task(
-                    id=task[0],
-                    creation_time=task[1],
-                    due_time=task[2],
-                    owner_id=task[3],
-                    description=task[4],
-                    done=task[5],
+            cur = db.execute(f'select * from "task" where "owner_id"=%s ', id)
+            tasks = cur.fetchall()
+            task_objs = []
+            for task in tasks:
+                task_objs.append(
+                    Task(
+                        id=task[0],
+                        creation_time=task[1],
+                        due_time=task[2],
+                        owner_id=task[3],
+                        description=task[4],
+                        done=task[5],
+                    )
                 )
-                for task in cur.fetchall()
-            ]
+            return task_objs
 
     def add(self, task: Task):
         with Database() as db:
             db.execute(
-                'insert into "{}" (id, creation_time, due_time, owner_id, description, done) values (%s,%s,%s,%s,%s,%s)'.format(
-                    self.table
-                ),
+                'insert into "task" (id, creation_time, due_time, owner_id, description, done) values (%s,%s,%s,%s,%s,%s)',
                 task.id,
                 task.creation_time,
                 task.due_time,
@@ -116,9 +104,7 @@ class TaskRepository(ABClass):
     def update(self, task: Task):
         with Database() as db:
             db.execute(
-                'update "{}" SET due_time=%s, description=%s, done=%s where id=%s'.format(
-                    self.table
-                ),
+                'update "task" SET due_time=%s, description=%s, done=%s where id=%s',
                 task.due_time,
                 task.description,
                 task.done,
@@ -129,7 +115,7 @@ class TaskRepository(ABClass):
     def delete(self, id: str):
         with Database() as db:
             db.execute(
-                'delete from "{}" where id=%s'.format(self.table),
+                'delete from "task" where id=%s',
                 id,
             )
             db.commit()

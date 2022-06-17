@@ -1,19 +1,18 @@
 CREATE TABLE "user"
 (
     id text primary key,
-    first_name text NOT NULL,
-    last_name text NOT NULL,
-    password text NOT NULL
+    first_name text not null,
+    last_name text not null,
+    password text not null
 );
 
 CREATE TABLE "task"
 (
     id text primary key,
-    creation_time timestamp without time zone NOT NULL default current_timestamp,
-    due_time timestamp without time zone NOT NULL,
-    owner_id text NOT NULL,
-    description text NOT NULL,
-    done bool NOT NULL,
-    FOREIGN KEY (owner_id) REFERENCES "user"(id) ON DELETE CASCADE
+    creation_time timestamp without time zone not null default current_timestamp,
+    due_time timestamp without time zone not null,
+    owner_id text not null,
+    description text not null,
+    done bool not null,
+    foreign key (owner_id) references "user"(id) on delete cascade
 );
-
