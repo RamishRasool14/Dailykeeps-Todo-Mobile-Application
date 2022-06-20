@@ -1,16 +1,14 @@
 import psycopg2
 import os
-
-DBNAME = "todoapp"
-USER = "ramishrasool"
-DBPASS = ""
-SCHEMAPATH = "../schema.sql"
+import config
 
 
 class Database:
     def __init__(self, existing_db=True) -> None:
         self._conn = None
-        self.dbname = DBNAME
+        self.dbname = config.DBNAME
+        if os.getenv("TESTING") == "1":
+            self.dbname = config.DBNAMETEST
 
         if existing_db:
             self.connect()
@@ -25,7 +23,9 @@ class Database:
 
     def connect(self):
         self._conn = psycopg2.connect(
-            "dbname={} user={} password={}".format(self.dbname, USER, DBPASS)
+            "dbname={} user={} password={}".format(
+                self.dbname, config.USER, config.DBPASS
+            )
         )
         self._cur = self._conn.cursor()
 
@@ -49,7 +49,7 @@ class Database:
         os.system("createdb {}".format(self.dbname))
 
     def _create_tables_from_schema(self):
-        os.system("psql {} -af {}".format(self.dbname, SCHEMAPATH))
+        os.system("psql {} -af {}".format(self.dbname, config.SCHEMAPATH))
 
     def _drop_and_create_new_db(self):
         self._drop_db()
@@ -61,4 +61,4 @@ class Database:
         self._conn.close()
 
 
-# Database(existing_db=False)  # Creates a new database
+# Database(False)  # Creates a new database

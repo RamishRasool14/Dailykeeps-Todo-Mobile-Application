@@ -27,7 +27,7 @@ class Task:
     due_time: Optional[datetime] = None
 
     def __post_init__(self):
-        if self.due_time is None:
+        if not self.due_time:
             self.due_time = self.creation_time + timedelta(days=1)
         elif self.due_time <= self.creation_time:
             raise InvalidDueTime
@@ -40,17 +40,13 @@ class User:
     id: str
     first_name: str
     last_name: str
-    password_hash: str
-    generate_hash: bool = True
+    password: str
+    email: str
+    password_hash: str = None
 
     def __post_init__(self):
-        if self.generate_hash:
-            self.password_hash = generate_hexdigest(self.password_hash)
-        else:
-            self.password_hash = self.password_hash
-
-    def update_password(self, password):
-        self.password_hash = generate_hexdigest(password)
+        if self.password:
+            self.password_hash = generate_hexdigest(self.password)
 
     def authenticate(self, password: str) -> bool:
         return generate_hexdigest(password) == self.password_hash

@@ -3,6 +3,7 @@ CREATE TABLE "user"
     id text primary key,
     first_name text not null,
     last_name text not null,
+    email text not null unique,
     password text not null
 );
 

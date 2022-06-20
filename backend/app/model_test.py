@@ -63,17 +63,20 @@ def test_create_user():
     user_id = uuid.uuid4()
     test_first_name = "random first name"
     test_last_name = "random last name"
+    email = "ramish_rasool@hotmail.com"
     test_password_hash = model.generate_hexdigest("random password")
     user = model.User(
         first_name=test_first_name,
         last_name=test_last_name,
-        password_hash="random password",
+        password="random password",
         id=user_id,
+        email=email,
     )
     assert user.id == user_id
     assert user.first_name == test_first_name
     assert user.last_name == test_last_name
     assert user.password_hash == test_password_hash
+    assert user.email == email
 
 
 def test_autheticate_password():
@@ -82,7 +85,8 @@ def test_autheticate_password():
         id=uuid.uuid4(),
         first_name="ramish",
         last_name="rasool",
-        password_hash=test_pass,
+        email="randomemail@hotmail.com",
+        password=test_pass,
     )
     assert user.authenticate("correct password")
     assert not user.authenticate("incorrect password")
