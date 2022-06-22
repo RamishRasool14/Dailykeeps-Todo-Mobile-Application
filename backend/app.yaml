@@ -13,7 +13,6 @@
 # limitations under the License.
 
 runtime: python
-config_variables_file_path: .env
 entrypoint: flask run
 
 runtime_config:
@@ -29,3 +28,14 @@ resources:
   cpu: 1
   memory_gb: 0.5
   disk_size_gb: 10
+
+env_variables:
+  FLASK_APP: "server"
+  DBNAME: "todoapp"
+  USER: "ramishrasool"
+  SCHEMAPATH: "../schema.sql"
+  JWTSECRET: "verysecretpasswordthisis"
+  DBPASS: ""
+  DBNAMETEST: "todoapptest"
+  CREATENEWDB: "0"
+  TESTING: "1"
