@@ -6,9 +6,15 @@ import config
 class Database:
     def __init__(self, existing_db=True) -> None:
         self._conn = None
-        self.dbname = config.DBNAME
-        if os.getenv("TESTING") == "1":
-            self.dbname = config.DBNAMETEST
+        self.config = {
+            "DBNAME": os.getenv("DBNAME")
+            if os.getenv("TESTING") == "0"
+            else os.getenv("DBNAMETEST"),
+            "DBPASS": os.getenv("DBPASS"),
+            "USER": os.getenv("USER"),
+            "SCHEMAPATH": os.getenv("SCHEMAPATH"),
+            "JWTSECRET": os.getenv("JWTSECRET"),
+        }
 
         if existing_db:
             self.connect()
@@ -24,7 +30,7 @@ class Database:
     def connect(self):
         self._conn = psycopg2.connect(
             "dbname={} user={} password={}".format(
-                self.dbname, config.USER, config.DBPASS
+                self.config["DBNAME"], self.config["USER"], self.config["DBPASS"]
             )
         )
         self._cur = self._conn.cursor()
@@ -43,13 +49,15 @@ class Database:
         self._conn.rollback()
 
     def _drop_db(self):
-        os.system("dropdb {}".format(self.dbname))
+        os.system("dropdb {}".format(self.config["DBNAME"]))
 
     def _create_db(self):
-        os.system("createdb {}".format(self.dbname))
+        os.system("createdb {}".format(self.config["DBNAME"]))
 
     def _create_tables_from_schema(self):
-        os.system("psql {} -af {}".format(self.dbname, config.SCHEMAPATH))
+        os.system(
+            "psql {} -af {}".format(self.config["DBNAME"], self.config["SCHEMAPATH"])
+        )
 
     def _drop_and_create_new_db(self):
         self._drop_db()
