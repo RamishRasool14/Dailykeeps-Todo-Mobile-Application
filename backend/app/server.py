@@ -5,19 +5,18 @@ from flask import Flask, request, jsonify
 from repository import TaskRepository, UserRepository
 from model import User, Task
 import utils
+import database
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
-"""
-
-Request data format
-
-{ "user": { "first_name" : , "last_name" : .... " } }
-
-"""
+load_dotenv()
+if os.getenv("CREATENEWDB") == "1":
+    database.Database(existing_db=False)
 
 app = Flask(__name__)
 
-
+# Payload { "user": { "first_name" : , "last_name" : .... " } }
 @app.route("/register_user", methods=["POST"])
 def register():
     data = request.json
