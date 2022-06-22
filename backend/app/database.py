@@ -67,6 +67,3 @@ class Database:
     def close(self):
         self._cur.close()
         self._conn.close()
-
-
-# Database(False)  # Creates a new database
