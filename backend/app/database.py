@@ -25,7 +25,9 @@ class Database:
 
     def connect(self):
         self._conn = psycopg2.connect(
-            "dbname={} user={} password={}".format(self.dbname, USER, DBPASS)
+            "dbname={} user={} password={}".format(
+                self.dbname, USER, DBPASS
+            )
         )
         self._cur = self._conn.cursor()
 
@@ -61,4 +63,4 @@ class Database:
         self._conn.close()
 
 
-# Database(existing_db=False)  # Creates a new database
+# Database(False)  # Creates a new database

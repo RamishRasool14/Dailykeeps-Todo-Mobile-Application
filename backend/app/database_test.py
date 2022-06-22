@@ -31,7 +31,7 @@ def test_add_user():
 def test_update_user():
     updated_user = utils.create_random_user()
     user.add(updated_user)
-    updated_user.update_password("mynewpassyay!")
+    updated_user.password_hash = utils.generate_hexdigest("mynewpassyay!")
     user.update(updated_user)
     user_obj = user.get(id=updated_user.id)
     assert user_obj.first_name == updated_user.first_name
