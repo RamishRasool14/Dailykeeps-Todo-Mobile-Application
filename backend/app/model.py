@@ -22,7 +22,7 @@ class Task:
     owner_id: str
     id: str
     creation_time: datetime
-    description: str = ""
+    description: Optional[str] = ""
     done: bool = False
     due_time: Optional[datetime] = None
 
