@@ -1,1 +1,1 @@
-DailyKeeps - A ToDo List applicatoin to help you orgnanize your daily tasks!
+DailyKeeps - A ToDo List application to help you organize your daily tasks!
