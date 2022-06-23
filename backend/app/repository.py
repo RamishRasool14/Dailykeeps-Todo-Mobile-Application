@@ -1,25 +1,25 @@
 from abc import ABC, abstractmethod
 from database import Database
 from model import User, Task
-from typing import Optional
+from typing import Optional, Union
 import exception
 
 
 class ABClass(ABC):
     @abstractmethod
-    def get(self, id):
+    def get(self, id: str):
         pass
 
     @abstractmethod
-    def add(self, model):
+    def add(self, model: Union[Task, User]):
         pass
 
     @abstractmethod
-    def update(self, model):
+    def update(self, model: Union[Task, User]):
         pass
 
     @abstractmethod
-    def delete(self, id):
+    def delete(self, id: str):
         pass
 
 
@@ -72,7 +72,7 @@ class UserRepository(ABClass):
 
 
 class TaskRepository(ABClass):
-    def get(self, id):
+    def get(self, id: str):
         with Database() as db:
             cur = db.execute(f'select * from "task" where "owner_id"=%s ', id)
             tasks = cur.fetchall()
