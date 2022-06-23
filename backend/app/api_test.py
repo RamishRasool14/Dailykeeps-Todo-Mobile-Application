@@ -4,6 +4,9 @@ import utils
 from repository import UserRepository, TaskRepository
 from model import Task, User
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 host = "http://127.0.0.1:5000/"
 

@@ -7,7 +7,6 @@ from typing import Optional
 from datetime import datetime, timedelta
 import uuid
 import jwt
-import config
 
 generate_random_string = lambda x: "".join(
     random.choices(string.ascii_uppercase + string.digits, k=x)

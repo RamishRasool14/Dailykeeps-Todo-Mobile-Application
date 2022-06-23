@@ -7,6 +7,9 @@ import pytest
 import utils
 import exception
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 user = repository.UserRepository()
 task = repository.TaskRepository()
