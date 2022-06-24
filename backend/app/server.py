@@ -34,7 +34,7 @@ def register():
         return utils.jwt_encode({"description": "successfully registered user"})
     except Exception as e:
         print(e)
-        return utils.jwt_encode({"description": "failted to register user"})
+        return utils.jwt_encode({"description": "failed to register user"})
 
 
 # Payload {"user": {"first_name": "Ramish", "last_name": "Rasool", "email": "ramishrasool@hotmail.com", "password": "iloveanime"} }

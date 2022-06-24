@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-host = "http://127.0.0.1:5000/"
+host = "https://ramish-todoapp-dot-hum-retail-dev.uc.r.appspot.com/"
 
 
 def test_register_user():

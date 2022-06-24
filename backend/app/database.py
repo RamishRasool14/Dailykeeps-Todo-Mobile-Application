@@ -28,7 +28,7 @@ class Database:
 
     def connect(self):
         self._conn = psycopg2.connect(
-            "dbname={} user={} password={}".format(
+            "dbname={} user={} password={} host=34.136.84.83".format(
                 self.config["DBNAME"], self.config["USER"], self.config["DBPASS"]
             )
         )
