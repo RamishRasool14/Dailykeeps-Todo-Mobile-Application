@@ -40,7 +40,6 @@ def register():
         user_repo.add(user)
         return {"description": "successfully registered user"}
     except Exception as e:
-        print(e)
         return {"description": "failed to register user"}
 
 
@@ -57,7 +56,6 @@ def login_user():
             "token": utils.jwt_encode(user.id),
         }
     except Exception as e:
-        print(e)
         return {"description": "failed to log in user"}
 
 
@@ -77,7 +75,6 @@ def create_task():
         task_repo.add(task)
         return {"description": "successfully added task"}
     except Exception as e:
-        print(e)
         return {"description": "failed to add task"}
 
 
@@ -94,7 +91,6 @@ def get_task():
             tasks = task_repo.get(user_id)
         return {"description": "successfull", "data": tasks}
     except Exception as e:
-        print(e)
         return {"description": "failed to get task"}
 
 
@@ -109,7 +105,6 @@ def edit_task():
         task_repo.update(edited_task)
         return {"description": "successfully updated"}
     except Exception as e:
-        print(e)
         return {"description": "failed to edit task"}
 
 
@@ -122,5 +117,4 @@ def delete_task():
         task_repo.delete(user_id)
         return {"description": "successfully deleted"}
     except Exception as e:
-        print(e)
         return {"description": "failed to delete task"}
