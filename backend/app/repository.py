@@ -26,7 +26,7 @@ class ABClass(ABC):
 class UserRepository(ABClass):
     def get(self, id: Optional[str] = None, by: Optional[set] = "id", all=False):
         with Database() as db:
-            cur = db.execute('select * from "user" where "{}"=%s'.format(by), id)
+            cur = db.execute('select * from users where "{}"=%s'.format(by), id)
             user = cur.fetchone()
             if not user:
                 raise exception.UserNotFound()
@@ -42,7 +42,7 @@ class UserRepository(ABClass):
     def add(self, user: User):
         with Database() as db:
             db.execute(
-                'insert into "user" (id, first_name, last_name, email,password) values (%s,%s,%s,%s,%s)',
+                "insert into users (id, first_name, last_name, email,password) values (%s,%s,%s,%s,%s)",
                 str(user.id),
                 user.first_name,
                 user.last_name,
@@ -54,7 +54,7 @@ class UserRepository(ABClass):
     def update(self, user: User):
         with Database() as db:
             db.execute(
-                'update "user" set first_name=%s, last_name=%s, password=%s where id=%s',
+                "update users set first_name=%s, last_name=%s, password=%s where id=%s",
                 user.first_name,
                 user.last_name,
                 user.password_hash,
@@ -65,7 +65,7 @@ class UserRepository(ABClass):
     def delete(self, id: str):
         with Database() as db:
             db.execute(
-                'delete from "user" where id=%s',
+                "delete from users where id=%s",
                 id,
             )
             db.commit()
@@ -74,7 +74,7 @@ class UserRepository(ABClass):
 class TaskRepository(ABClass):
     def get(self, id: str):
         with Database() as db:
-            cur = db.execute(f'select * from "task" where "owner_id"=%s ', id)
+            cur = db.execute(f'select * from tasks where "owner_id"=%s ', id)
             tasks = cur.fetchall()
             task_objs = []
             for task in tasks:
@@ -92,7 +92,7 @@ class TaskRepository(ABClass):
 
     def get_by_id(self, id):
         with Database() as db:
-            cur = db.execute(f'select * from "task" where "id"=%s ', id)
+            cur = db.execute(f'select * from tasks where "id"=%s ', id)
             task = cur.fetchone()
             if task:
                 get_task = Task(
@@ -110,7 +110,7 @@ class TaskRepository(ABClass):
     def get_task_for_a_day(self, id, date):
         with Database() as db:
             cur = db.execute(
-                f'select * from "task" where "owner_id"=%s and date("due_time")=%s ',
+                f'select * from tasks where "owner_id"=%s and date("due_time")=%s ',
                 id,
                 date,
             )
@@ -132,7 +132,7 @@ class TaskRepository(ABClass):
     def add(self, task: Task):
         with Database() as db:
             db.execute(
-                'insert into "task" (id, creation_time, due_time, owner_id, description, done) values (%s,%s,%s,%s,%s,%s)',
+                "insert into tasks (id, creation_time, due_time, owner_id, description, done) values (%s,%s,%s,%s,%s,%s)",
                 task.id,
                 task.creation_time,
                 task.due_time,
@@ -145,7 +145,7 @@ class TaskRepository(ABClass):
     def update(self, task: Task):
         with Database() as db:
             db.execute(
-                'update "task" set due_time=%s, description=%s, done=%s where id=%s',
+                "update tasks set due_time=%s, description=%s, done=%s where id=%s",
                 task.due_time,
                 task.description,
                 task.done,
@@ -156,7 +156,7 @@ class TaskRepository(ABClass):
     def delete(self, id: str):
         with Database() as db:
             db.execute(
-                'delete from "task" where id=%s',
+                "delete from tasks where id=%s",
                 id,
             )
             db.commit()

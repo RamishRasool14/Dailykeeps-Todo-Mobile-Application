@@ -5,10 +5,11 @@ from repository import UserRepository, TaskRepository
 from model import Task, User
 from datetime import datetime
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
-host = "https://ramish-todoapp-dot-hum-retail-dev.uc.r.appspot.com/"
+host = os.getenv("ADDRESS")
 
 
 def test_register_user():
@@ -17,18 +18,14 @@ def test_register_user():
     email = "{}@hotmail.com".format(utils.generate_random_string(10))
     password = utils.generate_random_string(8)
     data = {
-        "user": {
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "password": password,
-        }
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "password": password,
     }
     resp = requests.post(host + "register_user", json=data)
-    print(resp.json())
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=email)
-    print(user)
     assert user.first_name == first_name
     assert user.last_name == last_name
     assert user.email == email
@@ -38,36 +35,34 @@ def test_register_user():
 def test_login_user():
     user = utils.create_random_user()
     data = {
-        "user": {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "password": user.password,
-        }
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "password": user.password,
     }
+    print(os.getenv("JWTSECRET"))
     resp = requests.post(host + "register_user", json=data)
     resp = requests.get(host + "login", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
-    assert user.id == resp.json()["user"]["id"]
+    assert utils.jwt_decode(resp.json()["token"]) == user.id
 
 
 def test_create_task():
     user = utils.create_random_user()
     data = {
-        "user": {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "password": user.password,
-        }
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
+    resp = requests.get(host + "login", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     task = utils.create_random_task(owner_id=user.id)
     desc = utils.generate_random_string(15)
-    data = {"task": {"owner_id": user.id, "description": desc}}
+    data = {"description": desc, "token": resp.json()["token"]}
 
     resp = requests.post(host + "create_task", json=data)
     task_repo = TaskRepository()
@@ -79,14 +74,13 @@ def test_create_task():
 def test_get_task():
     user = utils.create_random_user()
     data = {
-        "user": {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "password": user.password,
-        }
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
+    resp = requests.get(host + "login", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     task = utils.create_random_task(owner_id=user.id)
@@ -95,8 +89,8 @@ def test_get_task():
     for x in range(num_of_tasks):
         desc = utils.generate_random_string(15)
         descriptions.append(desc)
-        data = {"task": {"owner_id": user.id, "description": desc}}
-        resp = requests.post(host + "create_task", json=data)
+        data = {"description": desc, "token": resp.json()["token"]}
+        resp_post = requests.post(host + "create_task", json=data)
 
     task_repo = TaskRepository()
     tasks = task_repo.get(user.id)
@@ -108,29 +102,28 @@ def test_get_task():
 def test_edit_task():
     user = utils.create_random_user()
     data = {
-        "user": {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "password": user.password,
-        }
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
+    resp = requests.get(host + "login", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     data = {
-        "task": {"owner_id": user.id, "description": utils.generate_random_string(15)}
+        "token": resp.json()["token"],
+        "description": utils.generate_random_string(15),
     }
-    resp = requests.post(host + "create_task", json=data)
+    resp_post = requests.post(host + "create_task", json=data)
     task_repo = TaskRepository()
     task = task_repo.get(user.id)[0]
     edited_task = {
-        "task": {
-            "id": task.id,
-            "due_time": "2025-05-25",
-            "done": "true",
-            "description": "edited task I am",
-        }
+        "due_time": "2025-05-25",
+        "done": "true",
+        "description": "edited task I am",
+        "id": task.id,
+        "token": resp.json()["token"],
     }
     resp = requests.post(host + "edit_task", json=edited_task)
     edit_task = task_repo.get(user.id)[0]
@@ -143,18 +136,19 @@ def test_edit_task():
 def test_delete_task():
     user = utils.create_random_user()
     data = {
-        "user": {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "password": user.password,
-        }
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
+    resp = requests.get(host + "login", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     data = {
-        "task": {"owner_id": user.id, "description": utils.generate_random_string(15)}
+        "owner_id": user.id,
+        "description": utils.generate_random_string(15),
+        "token": resp.json()["token"],
     }
     resp = requests.post(host + "create_task", json=data)
     task_repo = TaskRepository()

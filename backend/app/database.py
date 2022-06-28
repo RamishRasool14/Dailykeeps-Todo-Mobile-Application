@@ -10,11 +10,11 @@ class Database:
             if os.getenv("TESTING") == "0"
             else os.getenv("DBNAMETEST"),
             "DBPASS": os.getenv("DBPASS"),
-            "USER": os.getenv("USER"),
+            "USERNAME": os.getenv("USERNAME"),
             "SCHEMAPATH": os.getenv("SCHEMAPATH"),
             "JWTSECRET": os.getenv("JWTSECRET"),
+            "DBPUBLICIP": os.getenv("DBPUBLICIP"),
         }
-
         if existing_db:
             self.connect()
         else:
@@ -28,8 +28,11 @@ class Database:
 
     def connect(self):
         self._conn = psycopg2.connect(
-            "dbname={} user={} password={} host=34.136.84.83".format(
-                self.config["DBNAME"], self.config["USER"], self.config["DBPASS"]
+            "dbname={} user={} password={} host={}".format(
+                self.config["DBNAME"],
+                self.config["USERNAME"],
+                self.config["DBPASS"],
+                self.config["DBPUBLICIP"],
             )
         )
         self._cur = self._conn.cursor()
