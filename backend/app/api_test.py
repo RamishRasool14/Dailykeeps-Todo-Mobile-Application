@@ -42,7 +42,7 @@ def test_login_user():
     }
     print(os.getenv("JWTSECRET"))
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login", json=data)
+    resp = requests.get(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     assert utils.jwt_decode(resp.json()["token"]) == user.id
@@ -57,7 +57,7 @@ def test_create_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login", json=data)
+    resp = requests.get(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     task = utils.create_random_task(owner_id=user.id)
@@ -80,7 +80,7 @@ def test_get_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login", json=data)
+    resp = requests.get(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     task = utils.create_random_task(owner_id=user.id)
@@ -108,7 +108,7 @@ def test_edit_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login", json=data)
+    resp = requests.get(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     data = {
@@ -142,7 +142,7 @@ def test_delete_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login", json=data)
+    resp = requests.get(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     data = {
