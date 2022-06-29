@@ -4,6 +4,7 @@ import json
 from flask import Flask, request, jsonify
 from repository import TaskRepository, UserRepository
 from model import User, Task
+import exception
 import utils
 import database
 from datetime import datetime
@@ -39,8 +40,8 @@ def register():
         user_repo = UserRepository()
         user_repo.add(user)
         return {"description": "successfully registered user"}
-    except Exception as e:
-        return {"description": "failed to register user", "error": str(e)}
+    except Exception:
+        raise exception.ErrorRegisteringUser()
 
 
 # Payload {"first_name": "Ramish", "last_name": "Rasool", "email": "ramishrasool@hotmail.com", "password": "iloveanime"}
@@ -55,8 +56,8 @@ def login_user():
             "description": "successfully logged in",
             "token": utils.jwt_encode(user.id),
         }
-    except Exception as e:
-        return {"description": "failed to log in user", "error": str(e)}
+    except Exception:
+        raise exception.ErrorLoggingIn()
 
 
 # Payload {"token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNmQwNmIzNmYtNGE1MS00YTExLTk5ZjAtYzAxMzQxZjEyMjgyIn0._nPQYfmO2jJM8XycGQUPUZ9V26uJMta3Oi9pgHxjucI", "description": "a different task"}
@@ -74,8 +75,8 @@ def create_task():
         )
         task_repo.add(task)
         return {"description": "successfully added task"}
-    except Exception as e:
-        return {"description": "failed to add task", "error": str(e)}
+    except Exception:
+        raise exception.ErrorCreatingTask()
 
 
 # Payload {"token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNmQwNmIzNmYtNGE1MS00YTExLTk5ZjAtYzAxMzQxZjEyMjgyIn0._nPQYfmO2jJM8XycGQUPUZ9V26uJMta3Oi9pgHxjucI", "day":"" }
@@ -90,8 +91,8 @@ def get_task():
         else:
             tasks = task_repo.get(user_id)
         return {"description": "successfull", "data": tasks}
-    except Exception as e:
-        return {"description": "failed to get task", "error": str(e)}
+    except Exception:
+        raise exception.ErrorGettingTask()
 
 
 # Payload {"due_time": "2025-05-25","done": "true", "description": "edited task I am",    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiYWQwOTMzZDYtZjYzMi00NWVkLWJiY2ItM2NlM2Y5YmVhNjFiIn0.7RS3oVLHoqlB8o0n09idcKn8rnBJ0SAhPGV8KCFjcBU",    "id":"bda7283b-9df6-477e-a5b0-6f6c8183e310"}
@@ -104,8 +105,8 @@ def edit_task():
         edited_task = utils.make_task_from_json_payload(data)
         task_repo.update(edited_task)
         return {"description": "successfully updated"}
-    except Exception as e:
-        return {"description": "failed to edit task", "error": str(e)}
+    except Exception:
+        raise exception.ErrorEditingTask()
 
 
 # Payload {"id":"bda7283b-9df6-477e-a5b0-6f6c8183e310"}
@@ -118,5 +119,5 @@ def delete_task():
         task_repo = TaskRepository()
         task_repo.delete(user_id)
         return {"description": "successfully deleted"}
-    except Exception as e:
-        return {"description": "failed to delete task", "error": str(e)}
+    except Exception:
+        raise exception.ErrorDeletingTask()
