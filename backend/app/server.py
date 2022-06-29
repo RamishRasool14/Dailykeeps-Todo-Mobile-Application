@@ -24,7 +24,7 @@ def main_page():
     return "Hello I am working good"
 
 
-# Payload { "first_name" : , "last_name" : .... " }
+# Payload { "first_name" : , "last_name" : .... ", "password": ... }
 @app.route("/register_user", methods=["POST"])
 def register():
     try:
@@ -78,7 +78,7 @@ def create_task():
         return {"description": "failed to add task", "error": str(e)}
 
 
-# Payload {"owner_id": "b8000698-86c3-4f0f-86ad-6f5c44986b2e", "day":"2022-06-21"}
+# Payload {"token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNmQwNmIzNmYtNGE1MS00YTExLTk5ZjAtYzAxMzQxZjEyMjgyIn0._nPQYfmO2jJM8XycGQUPUZ9V26uJMta3Oi9pgHxjucI", "day":"" }
 @app.route("/get_task", methods=["POST"])
 def get_task():
     try:
@@ -94,7 +94,7 @@ def get_task():
         return {"description": "failed to get task", "error": str(e)}
 
 
-# Payload {"id": "0eef391b-8eb0-4f4d-b23d-79051f7e51e5", "due_time": "", "done": "true", "description": "edited task"}
+# Payload {"due_time": "2025-05-25","done": "true", "description": "edited task I am",    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiYWQwOTMzZDYtZjYzMi00NWVkLWJiY2ItM2NlM2Y5YmVhNjFiIn0.7RS3oVLHoqlB8o0n09idcKn8rnBJ0SAhPGV8KCFjcBU",    "id":"bda7283b-9df6-477e-a5b0-6f6c8183e310"}
 @app.route("/edit_task", methods=["POST"])
 def edit_task():
     try:
@@ -108,11 +108,13 @@ def edit_task():
         return {"description": "failed to edit task", "error": str(e)}
 
 
+# Payload {"id":"bda7283b-9df6-477e-a5b0-6f6c8183e310"}
 @app.route("/delete_task", methods=["POST"])
 def delete_task():
     try:
         data = request.json
         user_id = data["id"]
+
         task_repo = TaskRepository()
         task_repo.delete(user_id)
         return {"description": "successfully deleted"}
