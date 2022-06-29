@@ -40,7 +40,7 @@ def register():
         user_repo.add(user)
         return {"description": "successfully registered user"}
     except Exception as e:
-        return {"description": "failed to register user"}
+        return {"description": "failed to register user", "error": str(e)}
 
 
 # Payload {"first_name": "Ramish", "last_name": "Rasool", "email": "ramishrasool@hotmail.com", "password": "iloveanime"}
@@ -56,10 +56,10 @@ def login_user():
             "token": utils.jwt_encode(user.id),
         }
     except Exception as e:
-        return {"description": "failed to log in user"}
+        return {"description": "failed to log in user", "error": str(e)}
 
 
-# Payload {"owner_id": "b8000698-86c3-4f0f-86ad-6f5c44986b2e", "description": "a different task"}
+# Payload {"token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNmQwNmIzNmYtNGE1MS00YTExLTk5ZjAtYzAxMzQxZjEyMjgyIn0._nPQYfmO2jJM8XycGQUPUZ9V26uJMta3Oi9pgHxjucI", "description": "a different task"}
 @app.route("/create_task", methods=["POST"])
 def create_task():
     try:
@@ -75,7 +75,7 @@ def create_task():
         task_repo.add(task)
         return {"description": "successfully added task"}
     except Exception as e:
-        return {"description": "failed to add task"}
+        return {"description": "failed to add task", "error": str(e)}
 
 
 # Payload {"owner_id": "b8000698-86c3-4f0f-86ad-6f5c44986b2e", "day":"2022-06-21"}
@@ -91,7 +91,7 @@ def get_task():
             tasks = task_repo.get(user_id)
         return {"description": "successfull", "data": tasks}
     except Exception as e:
-        return {"description": "failed to get task"}
+        return {"description": "failed to get task", "error": str(e)}
 
 
 # Payload {"id": "0eef391b-8eb0-4f4d-b23d-79051f7e51e5", "due_time": "", "done": "true", "description": "edited task"}
@@ -105,16 +105,16 @@ def edit_task():
         task_repo.update(edited_task)
         return {"description": "successfully updated"}
     except Exception as e:
-        return {"description": "failed to edit task"}
+        return {"description": "failed to edit task", "error": str(e)}
 
 
 @app.route("/delete_task", methods=["POST"])
 def delete_task():
     try:
         data = request.json
-        user_id = utils.jwt_decode(data["token"])
+        user_id = data["id"]
         task_repo = TaskRepository()
         task_repo.delete(user_id)
         return {"description": "successfully deleted"}
     except Exception as e:
-        return {"description": "failed to delete task"}
+        return {"description": "failed to delete task", "error": str(e)}

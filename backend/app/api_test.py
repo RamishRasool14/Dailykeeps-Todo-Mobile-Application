@@ -40,9 +40,8 @@ def test_login_user():
         "email": user.email,
         "password": user.password,
     }
-    print(os.getenv("JWTSECRET"))
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login_user", json=data)
+    resp = requests.post(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     assert utils.jwt_decode(resp.json()["token"]) == user.id
@@ -57,7 +56,7 @@ def test_create_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login_user", json=data)
+    resp = requests.post(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     task = utils.create_random_task(owner_id=user.id)
@@ -80,7 +79,7 @@ def test_get_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login_user", json=data)
+    resp = requests.post(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     task = utils.create_random_task(owner_id=user.id)
@@ -108,7 +107,7 @@ def test_edit_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login_user", json=data)
+    resp = requests.post(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     data = {
@@ -142,11 +141,11 @@ def test_delete_task():
         "password": user.password,
     }
     resp = requests.post(host + "register_user", json=data)
-    resp = requests.get(host + "login_user", json=data)
+    resp = requests.post(host + "login_user", json=data)
     user_repo = UserRepository()
     user = user_repo.get(by="email", id=user.email)
     data = {
-        "owner_id": user.id,
+        "owner_id": str(user.id),
         "description": utils.generate_random_string(15),
         "token": resp.json()["token"],
     }
@@ -154,5 +153,5 @@ def test_delete_task():
     task_repo = TaskRepository()
     task = task_repo.get(user.id)[0]
     assert task_repo.get_by_id(task.id)
-    task_repo.delete(task.id)
+    resp = requests.post(host + "delete_task", json={"id": str(task.id)})
     assert not task_repo.get_by_id(task.id)

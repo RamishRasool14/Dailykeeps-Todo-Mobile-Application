@@ -13,7 +13,7 @@
 # limitations under the License.
 
 runtime: python
-entrypoint: gunicorn -b :$PORT server:app
+entrypoint: gunicorn -b :$PORT server:app 
 env: flex
 
 runtime_config:
@@ -25,22 +25,11 @@ service: ramish-todoapp
 # The settings below are to reduce costs during testing and are not appropriate
 # for production use. For more information, see:
 # https://cloud.google.com/appengine/docs/flexible/python/configuring-your-app-with-app-yaml
-manual_scaling:
-  instances: 1
-resources:
-  cpu: 1
-  memory_gb: 0.5
-  disk_size_gb: 10
 
 env_variables:
-  FLASK_APP: "server"
-  DBNAME: "postgres"
-  USERNAME: "postgres"
-  SCHEMAPATH: "../schema.sql"
-  JWTSECRET: "verysecretpasswordthisis"
-  DBPASS: "ECT3vxRzB5lp5NVNAKXW"
-  DBNAMETEST: "todoapptest"
-  CREATENEWDB: "0"
-  TESTING: "0"
-  ADDRESS: "https://ramish-todoapp-dot-hum-retail-dev.uc.r.appspot.com/"
-  DBPUBLICIP: "database-2.criivcn95whe.us-east-2.rds.amazonaws.com"
+  DBNAME: "ramishrasool"
+  USERNAME: "ramishrasool"
+  DBPUBLICIP: "/cloudsql/hum-retail-dev:us-central1:onboarding"
+
+beta_settings:
+  cloud_sql_instances: hum-retail-dev:us-central1:onboarding

@@ -1,4 +1,4 @@
-import psycopg2
+from psycopg2 import connect as db_connect
 import os
 
 
@@ -15,6 +15,7 @@ class Database:
             "JWTSECRET": os.getenv("JWTSECRET"),
             "DBPUBLICIP": os.getenv("DBPUBLICIP"),
         }
+
         if existing_db:
             self.connect()
         else:
@@ -27,13 +28,11 @@ class Database:
         return self
 
     def connect(self):
-        self._conn = psycopg2.connect(
-            "dbname={} user={} password={} host={}".format(
-                self.config["DBNAME"],
-                self.config["USERNAME"],
-                self.config["DBPASS"],
-                self.config["DBPUBLICIP"],
-            )
+        self._conn = db_connect(
+            dbname=self.config["DBNAME"],
+            user=self.config["USERNAME"],
+            password=self.config["DBPASS"],
+            host=self.config["DBPUBLICIP"],
         )
         self._cur = self._conn.cursor()
 
