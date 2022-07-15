@@ -1,16 +1,20 @@
-import psycopg2
+from psycopg2 import connect as db_connect
 import os
-
-DBNAME = "todoapp"
-USER = "ramishrasool"
-DBPASS = ""
-SCHEMAPATH = "../schema.sql"
 
 
 class Database:
     def __init__(self, existing_db=True) -> None:
         self._conn = None
-        self.dbname = DBNAME
+        self.config = {
+            "DBNAME": os.getenv("DBNAME")
+            if os.getenv("TESTING") == "0"
+            else os.getenv("DBNAMETEST"),
+            "DBPASS": os.getenv("DBPASS"),
+            "USERNAME": os.getenv("USERNAME"),
+            "SCHEMAPATH": os.getenv("SCHEMAPATH"),
+            "JWTSECRET": os.getenv("JWTSECRET"),
+            "DBPUBLICIP": os.getenv("DBPUBLICIP"),
+        }
 
         if existing_db:
             self.connect()
@@ -24,10 +28,11 @@ class Database:
         return self
 
     def connect(self):
-        self._conn = psycopg2.connect(
-            "dbname={} user={} password={}".format(
-                self.dbname, USER, DBPASS
-            )
+        self._conn = db_connect(
+            dbname=self.config["DBNAME"],
+            user=self.config["USERNAME"],
+            password=self.config["DBPASS"],
+            host=self.config["DBPUBLICIP"],
         )
         self._cur = self._conn.cursor()
 
@@ -45,13 +50,15 @@ class Database:
         self._conn.rollback()
 
     def _drop_db(self):
-        os.system("dropdb {}".format(self.dbname))
+        os.system("dropdb {}".format(self.config["DBNAME"]))
 
     def _create_db(self):
-        os.system("createdb {}".format(self.dbname))
+        os.system("createdb {}".format(self.config["DBNAME"]))
 
     def _create_tables_from_schema(self):
-        os.system("psql {} -af {}".format(self.dbname, SCHEMAPATH))
+        os.system(
+            "psql {} -af {}".format(self.config["DBNAME"], self.config["SCHEMAPATH"])
+        )
 
     def _drop_and_create_new_db(self):
         self._drop_db()
@@ -61,6 +68,3 @@ class Database:
     def close(self):
         self._cur.close()
         self._conn.close()
-
-
-# Database(False)  # Creates a new database
