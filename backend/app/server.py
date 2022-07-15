@@ -75,8 +75,8 @@ def create_task():
         )
         task_repo.add(task)
         return {"description": "successfully added task"}
-    except Exception:
-        raise exception.ErrorCreatingTask()
+    except Exception as e:
+        raise exception.ErrorCreatingTask(e)
 
 
 # Payload {"token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiNmQwNmIzNmYtNGE1MS00YTExLTk5ZjAtYzAxMzQxZjEyMjgyIn0._nPQYfmO2jJM8XycGQUPUZ9V26uJMta3Oi9pgHxjucI", "day":"" }
@@ -105,8 +105,8 @@ def edit_task():
         edited_task = utils.make_task_from_json_payload(data)
         task_repo.update(edited_task)
         return {"description": "successfully updated"}
-    except Exception:
-        raise exception.ErrorEditingTask()
+    except Exception as e:
+        raise exception.ErrorEditingTask(e)
 
 
 # Payload {"id":"bda7283b-9df6-477e-a5b0-6f6c8183e310"}

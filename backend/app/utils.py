@@ -44,7 +44,7 @@ def make_task_from_json_payload(data):
     original_task = task_repo.get_by_id(data["id"])
 
     if data["due_time"]:
-        due_time = datetime.strptime(data["due_time"], "%Y-%m-%d")
+        due_time = datetime.strptime(data["due_time"], "%a, %d %b %Y %H:%M:%S")
     else:
         due_time = original_task.due_time
 
