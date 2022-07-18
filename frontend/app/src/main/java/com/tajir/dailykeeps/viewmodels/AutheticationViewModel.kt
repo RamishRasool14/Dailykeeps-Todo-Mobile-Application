@@ -1,7 +1,10 @@
 package com.tajir.dailykeeps.viewmodels
 
+import android.app.Application
+import android.content.Context
 import androidx.compose.runtime.compositionLocalOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tajir.dailykeeps.data.StateModels.LoginState
 import com.tajir.dailykeeps.data.StateModels.RegisterState
@@ -10,15 +13,14 @@ import com.tajir.dailykeeps.data.api.interfeces.models.Login
 import com.tajir.dailykeeps.data.api.interfeces.models.LoginResponse
 import com.tajir.dailykeeps.data.api.interfeces.models.Register
 import com.tajir.dailykeeps.data.api.interfeces.models.RegisterResponse
+import com.tajir.dailykeeps.ui.session.Session
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
-import java.lang.Exception
 
-class AuthenticationViewModel : ViewModel() {
+class AuthenticationViewModel() : ViewModel() {
     val loginState = MutableStateFlow(LoginState())
     val registerState = MutableStateFlow(RegisterState())
-//    val token = MutableStateFlow(String())
 
     fun updateEmailLogin(email : String) {
         loginState.value = loginState.value.copy(
@@ -166,12 +168,10 @@ class AuthenticationViewModel : ViewModel() {
 
             try {
                 val res = RetrofitInstance().Api.register(data)
-                println(res.body())
                 setLoadingRegister(false)
                 updateRegisterResponse(res)
                 process()
             } catch(e : Exception) {
-                println(e)
                 setErrRegister("Check your internet connection.")
                 setLoadingRegister(false)
             }

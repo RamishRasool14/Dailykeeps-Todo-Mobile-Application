@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tajir.dailykeeps.data.api.interfeces.models.Task
 import com.tajir.dailykeeps.ui.components.TaskCard
+import com.tajir.dailykeeps.ui.session.Session
+import com.tajir.dailykeeps.viewmodels.AuthState
 import com.tajir.dailykeeps.viewmodels.TaskState
 import kotlinx.coroutines.launch
 
@@ -48,6 +50,7 @@ fun MainScreen(
 
         val taskStateClass = TaskState.current
         val taskState = TaskState.current.taskState.collectAsState().value
+        var session: Session = Session(taskStateClass.cntxt)
 
         Scaffold(
             scaffoldState = scaffoldState,
@@ -67,6 +70,7 @@ fun MainScreen(
                 }
                 IconButton(onClick = { }) {
                     Icon(Icons.Filled.Logout, contentDescription = "Logout", modifier = Modifier.clickable(onClick = {
+                        session.setusename(null)
                         navController.navigate("login")
                     }).size(30.dp).weight(1f))
                 }

@@ -1,5 +1,7 @@
 package com.tajir.dailykeeps.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.tajir.dailykeeps.data.api.interfeces.models.Task
 import com.tajir.dailykeeps.viewmodels.TaskState
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskCard(
     task: Task,
@@ -30,6 +33,7 @@ fun TaskCard(
 
     val taskStateClass = TaskState.current
     val taskState = taskStateClass.taskState.collectAsState().value
+    taskStateClass.updateSelectedTask(task)
 
     Row(modifier = modifier) {
         Card(

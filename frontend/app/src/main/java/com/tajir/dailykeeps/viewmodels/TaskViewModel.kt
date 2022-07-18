@@ -1,25 +1,28 @@
 package com.tajir.dailykeeps.viewmodels
 
+import android.app.Application
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.compositionLocalOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.tajir.dailykeeps.data.StateModels.LoginState
 import com.tajir.dailykeeps.data.StateModels.TaskState
 import com.tajir.dailykeeps.data.api.RetrofitInstance
 import com.tajir.dailykeeps.data.api.interfeces.models.*
+import com.tajir.dailykeeps.ui.session.Session
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
-import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class TaskViewModel : ViewModel() {
+
+class TaskViewModel(mApplication: Application, mContext: Context) : ViewModel() {
+    var cntxt: Context = mContext
+    var session: Session = Session(mContext)
     val taskState = MutableStateFlow(TaskState())
-    val loginState = MutableStateFlow(LoginState())
 
     private fun setErr(msg: String)
     {
@@ -30,16 +33,15 @@ class TaskViewModel : ViewModel() {
 
     fun updateResponse(data: Response<TaskResponse>)
     {
+        updateTask(data.body()?.data)
         taskState.value = taskState.value.copy(
             task_response = data
         )
-        updateTask(data.body()?.data)
     }
 
     fun updateText(text: String) {
         taskState.value = taskState.value.copy(
-            runningText
-            = text
+            runningText = text
         )
     }
 
@@ -48,6 +50,7 @@ class TaskViewModel : ViewModel() {
         taskState.value = taskState.value.copy(
             token = token
         )
+        session.setusename(token)
     }
 
     fun updateTask(data: List<Task>?)
@@ -92,14 +95,14 @@ class TaskViewModel : ViewModel() {
     fun editTaskStatus(task: Task)
     {
         val formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz")
-        val new_formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
+        val newformatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss")
         viewModelScope.launch {
 
             val data = EditTask(
                 token = taskState.value.token!!,
                 id = task.id,
                 description = task.description,
-                due_time = LocalDateTime.parse(taskState.value.selectedTask?.due_time, formatter).format(new_formatter).toString(),
+                due_time = LocalDateTime.parse(taskState.value.selectedTask?.due_time, formatter).format(newformatter).toString(),
                 done = if (task.done) "false" else "true",
             )
             try {
@@ -182,6 +185,20 @@ class TaskViewModel : ViewModel() {
                 setErr("Check your internet connection.")
             }
         }
+    }
+}
+
+class MyViewModelFactory(application: Application, context: Context) :
+    ViewModelProvider.Factory {
+    private val mApplication: Application
+    private val mContext: Context
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return TaskViewModel(mApplication, mContext) as T
+    }
+
+    init {
+        mApplication = application
+        mContext = context
     }
 }
 
