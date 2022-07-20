@@ -118,7 +118,7 @@ def test_edit_task():
     task_repo = TaskRepository()
     task = task_repo.get(user.id)[0]
     edited_task = {
-        "due_time": "2025-05-25",
+        "due_time": "Thu, 14 Jul 2022 13:21:15 GMT",
         "done": "true",
         "description": "edited task I am",
         "id": task.id,
@@ -127,7 +127,7 @@ def test_edit_task():
     resp = requests.post(host + "edit_task", json=edited_task)
     edit_task = task_repo.get(user.id)[0]
     assert task.id == edit_task.id
-    assert datetime(2025, 5, 25) == edit_task.due_time
+    assert datetime(2022, 7, 14, 13, 21, 15) == edit_task.due_time
     assert edit_task.done
     assert "edited task I am" == edit_task.description
 
