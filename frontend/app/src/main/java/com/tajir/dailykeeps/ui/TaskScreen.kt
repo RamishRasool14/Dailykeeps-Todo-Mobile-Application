@@ -110,7 +110,10 @@ fun Content()
             Text(text = "Due:", fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.width(70.dp))
             Text(text = taskState.localDateTime.toString() , fontSize = 15.sp, modifier = Modifier.width(150.dp))
             Text(text = "Status:", fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.width(80.dp))
-            Text(text = if(taskState.selectedTask!!.done) "Completed" else "Incomplete", fontSize = 15.sp, color = if(taskState.selectedTask!!.done) Color.Green else Color.Red , modifier = Modifier.padding(top = 5.dp))
+            if(taskState.selectedTask != null)
+            {
+                Text(text = if(taskState.selectedTask!!.done) "Completed" else "Incomplete", fontSize = 15.sp, color = if(taskState.selectedTask!!.done) Color.Green else Color.Red , modifier = Modifier.padding(top = 5.dp))
+            }
         }
         TextField(value = taskState.runningText, onValueChange = { taskStateClass.updateText(text = it) }, Modifier.fillMaxSize() )
     }

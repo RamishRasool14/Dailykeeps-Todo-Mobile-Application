@@ -4,14 +4,13 @@ import com.tajir.dailykeeps.data.api.interfeces.Interface
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-val BASE_URL_LIVE = "https://ramish-todoapp-dot-hum-retail-dev.uc.r.appspot.com"
-val BASE_URL_LOCAL = "http://192.168.2.99:80"
+const val BASE_URL_LIVE = "https://ramish-todo.herokuapp.com/"
 
 class RetrofitInstance {
 
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL_LOCAL)
+            .baseUrl(BASE_URL_LIVE)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
